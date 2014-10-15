@@ -13,9 +13,12 @@ NEWSPIDER_MODULE = 'lj.spiders'
 ITEM_PIPELINES = ['lj.pipelines.LjPipeline']
 
 SCHEDULER_MIDDLEWARES = {
-    'crawl.scheduler_middlewares.DuplicatesFilterMiddleware': 500
+    'lj.scheduler_middlewares.DuplicatesFilterMiddleware': 500
 }
 
+EXTENSIONS = {
+    'lj.extensions.MysqlManager.MysqlManager': 500
+}
 
 HOST='localhost'
 USER='root'
@@ -28,5 +31,7 @@ LOG_ENCODING = 'utf-8'
 LOG_FILE = 'C://useful//ljscrapy//ljscrapy//lj//log//lj.log'
 LOG_LEVEL = 'DEBUG'
 LOG_STDOUT = False
+
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'test (+http://www.yourdomain.com)'

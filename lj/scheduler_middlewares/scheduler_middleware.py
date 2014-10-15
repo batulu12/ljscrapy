@@ -1,7 +1,7 @@
 from scrapy.core.exceptions import IgnoreRequest
 from scrapy.extension import extensions
  
-from crawl.cc98_util import extract_url, DOMAIN
+
  
 class DuplicatesFilterMiddleware(object):
     def open_domain(self, domain):
@@ -20,8 +20,12 @@ class DuplicatesFilterMiddleware(object):
             raise IgnoreRequest('Skipped (request already seen)')
         self.fingerprints.add(fp)
  
-    def make_fingerprint(self, dic):
-        return '%s,%s,%s' % (dic['board_id'],dic['thread_id'],dic['page_num'])
+    def make_fingerprint(self, url):
+        return hashlib.md5(url).hexdigest().upper()
  
     def init_fingerprints(self):
         self.fingerprints = set()
+        mgr = extensions.enabled['MysqlManager']
+        cursor = mgr.conn.execute('select recid from ljtr')
+        for recid in cursor:
+            self.fingerprints.add(recid)

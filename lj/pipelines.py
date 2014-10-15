@@ -7,6 +7,8 @@ import json
 
 import sys
 import MySQLdb
+from scrapy.extension import ExtensionManager
+from lj.extensions.MysqlManager import MysqlManager
 
 
 class LjPipeline(object):
@@ -30,8 +32,11 @@ class LjPipeline(object):
         
         ###########################################################/
         try:
-            conn = MySQLdb.connect(host='localhost',user='root',passwd='hshy12',charset='utf8',port = 3306)
-            cur = conn.cursor()
+            #conn = MySQLdb.connect(host='localhost',user='root',passwd='hshy12',charset='utf8',port = 3306)
+            #cur = conn.cursor()
+            mgr = MysqlManager()
+            cur = mgr.conn.cursor()
+            #cur  = extensions.enabled['MysqlManager']
             #value = [item['recid'],item['title']]
             value = []
             value.append(item['recid'])
@@ -46,11 +51,15 @@ class LjPipeline(object):
             value.append(item['remark'])  
             value.append(item['region'])
             value.append(item['detail_region'])
-            value.append(item['community'])                
-            cur.execute('insert into ljdb.tranrecord values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',value)
-            conn.commit()
+            value.append(item['community'])
+            value.append(item['pnum'])
+            cur.execute('insert into ljdb.ljtr values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',value)
+            mgr.conn.commit()
             cur.close()
-            conn.close()
+            mgr.conn.close()
+            #conn.commit()
+            #cur.close()
+            #conn.close()
         except MySQLdb.Error,e:
             print "Mysql Error %d:%s" % (e.args[0],e.args[1])
             

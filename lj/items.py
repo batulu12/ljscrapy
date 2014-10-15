@@ -24,4 +24,5 @@ class LjItem(Item):
     recid = Field()
     source = Field()
     remark = Field()
+    pnum = Field()
     pass
