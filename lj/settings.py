@@ -12,8 +12,8 @@ SPIDER_MODULES = ['lj.spiders']
 NEWSPIDER_MODULE = 'lj.spiders'
 ITEM_PIPELINES = ['lj.pipelines.LjPipeline']
 
-SCHEDULER_MIDDLEWARES = {
-    'lj.scheduler_middlewares.DuplicatesFilterMiddleware': 500
+DOWNLOADER_MIDDLEWARES = {
+    'lj.download_middleware.duplicatefiltermiddware.DuplicatesFilterMiddleware': 500
 }
 
 EXTENSIONS = {
