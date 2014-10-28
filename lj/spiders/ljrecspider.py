@@ -1,6 +1,8 @@
 from scrapy.contrib.spiders import CrawlSpider,Rule
 from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
+from scrapy.contrib.linkextractors import LinkExtractor
 from scrapy.selector import HtmlXPathSelector
+from scrapy.selector import Selector
 from scrapy.extension import ExtensionManager
 from lj.items import LjItem
 from lj.extensions.MysqlManager import MysqlManager
@@ -14,8 +16,8 @@ class lj(CrawlSpider):
     name = "ljrec"
     allowed_domains = ["beijing.homelink.com.cn"]
     start_urls = ["http://beijing.homelink.com.cn/sold/d2b75/"]
-    rules = [Rule(SgmlLinkExtractor(allow=('/sold/[^/]+.shtml')), callback = 'myparse'),
-             Rule(SgmlLinkExtractor(allow=('/sold/[^/]', )), follow=True)]
+    #rules = [Rule(LinkExtractor(allow=('/sold/[^/]+.shtml')), callback = 'myparse'),
+    #         Rule(LinkExtractor(allow=('/sold/[^/]', )), follow=True)]
     #def __init__(self):
     #    self.urldict = {}
 
@@ -41,9 +43,25 @@ class lj(CrawlSpider):
 
     
 
-    def myparse(self, response):
+    def parse(self, response):
         item = LjItem()
         x = HtmlXPathSelector(response)
+        
+        sel = Selector(response)
+        urls = sel.xpath("//div[@class='public paging']/ul/div/a[@class='gray_eight']/@href").extract()
+        tag = 0
+        if len(urls) != 0:
+            tag = 1
+        urls_detail = sel.xpath("//div[@class='public indetail']/div[@class='homeimg']/a/@href").extract()
+        urls = urls + urls_detail
+        for url in urls:   
+            url = "http://beijing.homelink.com.cn" + url  
+            yield Request(url, callback=self.parse)  
+            
+        if tag == 1:
+            return;
+        
+        
         urlmd5 = hashlib.md5(response.url).hexdigest().upper()
         if not urldict.has_key(urlmd5):
             urldict[urlmd5] = 0
@@ -111,4 +129,8 @@ class lj(CrawlSpider):
             
         item['source'] = 'lj'
         item['remark'] = ''
-        return item
+        yield item
+        
+       
+           
+      
