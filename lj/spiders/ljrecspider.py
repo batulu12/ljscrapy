@@ -49,16 +49,18 @@ class lj(CrawlSpider):
         
         sel = Selector(response)
         urls = sel.xpath("//div[@class='public paging']/ul/div/a[@class='gray_eight']/@href").extract()
-        tag = 0
-        if len(urls) != 0:
-            tag = 1
+        #tag = 0
+        #if len(urls) != 0:
+        #    tag = 1
         urls_detail = sel.xpath("//div[@class='public indetail']/div[@class='homeimg']/a/@href").extract()
         urls = urls + urls_detail
         for url in urls:   
             url = "http://beijing.homelink.com.cn" + url  
             yield Request(url, callback=self.parse)  
             
-        if tag == 1:
+        pattern = re.compile(r'http://beijing.homelink.com.cn/sold/(\w+).shtml')
+        m = pattern.match(response.url)
+        if m == None:
             return;
         
         
