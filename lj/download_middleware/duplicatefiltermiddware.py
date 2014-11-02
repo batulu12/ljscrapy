@@ -26,10 +26,11 @@ class DuplicatesFilterMiddleware(object):
     def enqueue_request(self,request):
     
         fp = self.make_fingerprint(request.url)
-        if fp in self.fingerprints:
+        if fp in self.fingerprints and request.dont_filter == False:
             raise IgnoreRequest('Skipped (request already seen)')
-           
-        self.fingerprints.add(fp)
+        elif request.dont_filter == False:
+            self.fingerprints.add(fp)
+        
  
     def make_fingerprint(self, url):
         return hashlib.md5(url).hexdigest().upper()

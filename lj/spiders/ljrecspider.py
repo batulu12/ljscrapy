@@ -7,6 +7,7 @@ from scrapy.extension import ExtensionManager
 from lj.items import LjItem
 from lj.extensions.MysqlManager import MysqlManager
 from scrapy.http import Request
+from scrapy import log
 import re
 import hashlib
 import scrapy
@@ -14,15 +15,17 @@ import scrapy
 urldict = {}
 class lj(CrawlSpider):
     name = "ljrec"
-    allowed_domains = ["beijing.homelink.com.cn"]
-    start_urls = ["http://beijing.homelink.com.cn/sold/d2b75/"]
+    allowed_domains = ["bj.lianjia.com"]
+    start_urls = ["http://bj.lianjia.com/sold"]
+    #1s  
+    download_delay = 1
     #rules = [Rule(LinkExtractor(allow=('/sold/[^/]+.shtml')), callback = 'myparse'),
     #         Rule(LinkExtractor(allow=('/sold/[^/]', )), follow=True)]
     #def __init__(self):
     #    self.urldict = {}
 
     def make_url(self,page_num):
-        url = "http://beijing.homelink.com.cn/sold/d2b75/"
+        url = "http://bj.lianjia.com/sold/"
         if page_num == 1:
             return url
         else:
@@ -33,13 +36,14 @@ class lj(CrawlSpider):
         cur = mgr.conn.cursor()
         val = cur.execute('select max(pnum) from ljdb.ljtr')
         if val is None:
-            page_num = 1
+            page_num = 2
         else:
             page_num = val
  
         # the last page may be incomplete, so we set dont_filter to be True to
         # force re-crawling it
-        return [Request(self.make_url(page_num), dont_filter=True)]
+        #return [Request(self.make_url(page_num))]
+        return [Request("http://bj.lianjia.com/sold")]
 
     
 
@@ -53,14 +57,31 @@ class lj(CrawlSpider):
         #if len(urls) != 0:
         #    tag = 1
         urls_detail = sel.xpath("//div[@class='public indetail']/div[@class='homeimg']/a/@href").extract()
-        urls = urls + urls_detail
-        for url in urls:   
-            url = "http://beijing.homelink.com.cn" + url  
-            yield Request(url, callback=self.parse)  
+        tag_wrong = sel.xpath("//div[@class='public allning']").extract()
+        #if len(urls) ==0 and len(urls_detail) < 12 and len(urls_detail) > 0:
+        if response.body.find('sorrynone') != -1 and len(tag_wrong) == 0:
+           print "#################################"
+           log.msg("#################################", level=log.WARNING)
+           print response.url
+           yield Request(response.url, callback=self.parse, dont_filter = True)
+           #f = open('C:\useful\ljscrapy\ljscrapy\lj\spiders\wrong4.html','w')
+           #f.write(response.body)
+           #f.close()
+           
+
+        if len(urls) == 1:
+           urls_detail.append(urls[0])
+        elif len(urls) == 3:
+           urls_detail.append(urls[2])
+        
             
-        pattern = re.compile(r'http://beijing.homelink.com.cn/sold/(\w+).shtml')
+        pattern = re.compile(r'http://bj.lianjia.com/sold/(\w+).shtml')
         m = pattern.match(response.url)
         if m == None:
+            for url in urls_detail:   
+                url = "http://bj.lianjia.com" + url 
+                print url            
+                yield Request(url, callback=self.parse)  
             return;
         
         
