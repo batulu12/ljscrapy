@@ -80,17 +80,17 @@ class ProxyMiddleware(object):
            
            
     def process_request(self, request, spider):
-        fd = open('C:\useful\ljscrapy\ljscrapy\lj\download_middleware\chu2.txt','r')
-        li2 = fd.readlines()
-        list = li2[0].split('\r')
-        length = len(list)
-        index = random.randint(0, length -1)
-        item = list[index]
-        t  = item.split(' ')
-        request.meta['proxy'] = 'http://%s:%s' % (t[0],t[1])
-        request.meta['proxy'] = 'http://112.123.64.189:10761'
+        #fd = open('C:\useful\ljscrapy\ljscrapy\lj\download_middleware\chu2.txt','r')
+        #li2 = fd.readlines()
+        #list = li2[0].split('\r')
+        #length = len(list)
+        #index = random.randint(0, length -1)
+        #item = list[index]
+        #t  = item.split(' ')
+       # request.meta['proxy'] = 'http://%s:%s' % (t[0],t[1])
+        request.meta['proxy'] = 'http://122.225.254.50:3128'
         #print request.meta['proxy']
-        fd.close()
+        #fd.close()
         #for l in list:
         #    t = l.split(' ')
         #    request.meta['proxy'] = 'http://%s:%s' % (t[0],t[1])

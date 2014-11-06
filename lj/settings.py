@@ -14,11 +14,11 @@ ITEM_PIPELINES = ['lj.pipelines.LjPipeline']
 
 HTTP_PROXY = 'http://117.28.204.202:27416'
 COOKIES_ENABLED = False
-
+REDIRECT_ENABLED = False
 DOWNLOADER_MIDDLEWARES = {
     'lj.download_middleware.duplicatefiltermiddware.DuplicatesFilterMiddleware': 500,
-    'lj.download_middleware.rotate_useragent.RotateUserAgentMiddleware': 500,
-    'lj.download_middleware.rotate_useragent.ProxyMiddleware': 500
+    'lj.download_middleware.rotate_useragent.RotateUserAgentMiddleware': 500
+   # 'lj.download_middleware.rotate_useragent.ProxyMiddleware': 500
 }
 
 EXTENSIONS = {

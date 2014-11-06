@@ -16,40 +16,40 @@ urldict = {}
 class lj(CrawlSpider):
     name = "ljrec"
     allowed_domains = ["bj.lianjia.com"]
-    start_urls = ["http://bj.lianjia.com/sold"]
+    start_urls = ["http://bj.lianjia.com/sold/pg5905"]
     #1s  
-    download_delay = 1
+    download_delay = 0.1
     #rules = [Rule(LinkExtractor(allow=('/sold/[^/]+.shtml')), callback = 'myparse'),
     #         Rule(LinkExtractor(allow=('/sold/[^/]', )), follow=True)]
     #def __init__(self):
     #    self.urldict = {}
 
     def make_url(self,page_num):
-        url = "http://bj.lianjia.com/sold/"
+        url = "http://bj.lianjia.com/sold/pg1397"
         if page_num == 1:
             return url
         else:
             return url+'pg'+str(page_num)
             
-    def start_requests(self):
-        mgr = MysqlManager()
-        cur = mgr.conn.cursor()
-        val = cur.execute('select max(pnum) from ljdb.ljtr')
-        if val is None:
-            page_num = 2
-        else:
-            page_num = val
+    #def start_requests(self):
+        #mgr = MysqlManager()
+        #cur = mgr.conn.cursor()
+        #val = cur.execute('select max(pnum) from ljdb.ljtr')
+        #if val is None:
+        #    page_num = 2
+        #else:
+        #    page_num = val
  
         # the last page may be incomplete, so we set dont_filter to be True to
         # force re-crawling it
         #return [Request(self.make_url(page_num))]
-        return [Request("http://bj.lianjia.com/sold")]
+        #return [Request("http://bj.lianjia.com/sold/pg1937")]
 
     
 
     def parse(self, response):
         item = LjItem()
-        x = HtmlXPathSelector(response)
+        x = Selector(response)
         
         sel = Selector(response)
         urls = sel.xpath("//div[@class='public paging']/ul/div/a[@class='gray_eight']/@href").extract()
@@ -63,6 +63,8 @@ class lj(CrawlSpider):
            print "#################################"
            log.msg("#################################", level=log.WARNING)
            print response.url
+           if response.url == 'http://bj.lianjia.com/sold/':
+              log.msg("%%%%%%%%%%%%%%%%%", level=log.WARNING)
            yield Request(response.url, callback=self.parse, dont_filter = True)
            #f = open('C:\useful\ljscrapy\ljscrapy\lj\spiders\wrong4.html','w')
            #f.write(response.body)
@@ -80,7 +82,9 @@ class lj(CrawlSpider):
         if m == None:
             for url in urls_detail:   
                 url = "http://bj.lianjia.com" + url 
-                print url            
+                print url
+                if url == 'http://bj.lianjia.com/sold/':
+                   log.msg("**************", level=log.WARNING)                
                 yield Request(url, callback=self.parse)  
             return;
         
